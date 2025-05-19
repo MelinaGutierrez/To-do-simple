@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keep it simple</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .dragging {
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body class="bg-blue-50 min-h-screen p-6 font-sans">
+  <!-- Logo centrado -->
+  <div class="flex justify-center mb-2">
+    <img src="b82afd4e-e5d0-4169-a52c-0a9a42f8d9ef.png" alt="Logo Keep it simple" class="h-16">
+  </div>
+
+  <h1 class="text-4xl font-bold text-center text-blue-900 mb-6">Keep it simple</h1>
+
+  <div class="flex justify-center mb-4">
+    <input id="taskInput" type="text" maxlength="30" placeholder="Escribe tu tarea y presiona Enter o ➤..." class="px-4 py-2 border rounded-l-lg w-1/2" onkeydown="handleKey(event)">
+    <button onclick="addTask()" class="px-4 py-2 bg-blue-400 text-white rounded-r-lg">➤</button>
+  </div>
+
+  <!-- Área de tarea temporal -->
+  <div id="taskCenter" class="flex justify-center mb-6">
+    <div id="taskTempWrapper" class="w-full max-w-[300px] space-y-2"></div>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
+    <div class="bg-white p-3 rounded-lg shadow-sm border border-blue-600 min-h-[200px]" ondrop="drop(event, 'column1')" ondragover="allowDrop(event)">
+      <h2 class="text-sm font-medium text-center mb-2">Urgente e importante</h2>
+      <div class="space-y-2" id="column1"></div>
+    </div>
+    <div class="bg-white p-3 rounded-lg shadow-sm border border-blue-400 min-h-[200px]" ondrop="drop(event, 'column2')" ondragover="allowDrop(event)">
+      <h2 class="text-sm font-medium text-center mb-2">No urgente e importante</h2>
+      <div class="space-y-2" id="column2"></div>
+    </div>
+    <div class="bg-white p-3 rounded-lg shadow-sm border border-blue-300 min-h-[200px]" ondrop="drop(event, 'column3')" ondragover="allowDrop(event)">
+      <h2 class="text-sm font-medium text-center mb-2">Urgente y no importante</h2>
+      <div class="space-y-2" id="column3"></div>
+    </div>
+    <div class="bg-white p-3 rounded-lg shadow-sm border border-blue-200 min-h-[200px]" ondrop="drop(event, 'column4')" ondragover="allowDrop(event)">
+      <h2 class="text-sm font-medium text-center mb-2">No urgente y no importante</h2>
+      <div class="space-y-2" id="column4"></div>
+    </div>
+  </div>
+
+  <div id="trash" ondrop="deleteTask(event)" ondragover="allowDrop(event)"
+    class="fixed bottom-4 right-4 w-14 h-14 rounded-full bg-blue-300 flex items-center justify-center shadow-lg cursor-pointer">
+    🗑️
+  </div>
+
+  <script>
+    let taskId = parseInt(localStorage.getItem('taskId')) || 0;
+
+    function saveTasks() {
+      const columns = ['column1', 'column2', 'column3', 'column4'];
+      const data = {};
+      columns.forEach(id => {
+        const tasks = Array.from(document.getElementById(id).children).map(task => {
+          const label = task.querySelector(".task-label").textContent;
+          const checked = task.querySelector("input[type='checkbox']").checked;
+          return { id: task.id, text: label, checked };
+        });
+        data[id] = tasks;
+      });
+      localStorage.setItem('tasks', JSON.stringify(data));
+      localStorage.setItem('taskId', taskId);
+    }
+
+    function loadTasks() {
+      const data = JSON.parse(localStorage.getItem('tasks')) || {};
+      Object.entries(data).forEach(([columnId, tasks]) => {
+        tasks.forEach(({ id, text, checked }) => {
+          const task = createTaskElement(text, id);
+          const checkbox = task.querySelector("input[type='checkbox']");
+          checkbox.checked = checked;
+          if (checked) task.classList.add("line-through", "opacity-50");
+          document.getElementById(columnId).appendChild(task);
+        });
+      });
+    }
+
+    function addTask() {
+      const input = document.getElementById("taskInput");
+      if (!input.value.trim()) return;
+      const task = createTaskElement(input.value);
+      const center = document.getElementById("taskTempWrapper");
+      center.appendChild(task);
+      input.value = "";
+      saveTasks();
+    }
+
+    function drop(ev, columnId) {
+      ev.preventDefault();
+      const id = ev.dataTransfer.getData("text");
+      const task = document.getElementById(id);
+      document.getElementById(columnId).appendChild(task);
+      saveTasks();
+    }
+
+    function handleKey(e) {
+      if (e.key === "Enter") addTask();
+    }
+
+    function createTaskElement(text, id = `task-${taskId++}`) {
+      const task = document.createElement("div");
+      task.draggable = true;
+      task.id = id;
+      task.className = "flex items-start justify-between p-2 bg-blue-100 rounded w-full text-sm break-words whitespace-normal";
+      task.ondragstart = drag;
+
+      const leftDiv = document.createElement("div");
+      leftDiv.className = "flex items-start flex-grow space-x-2";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "mt-1";
+      checkbox.onclick = () => {
+        task.classList.toggle("line-through", checkbox.checked);
+        task.classList.toggle("opacity-50", checkbox.checked);
+        saveTasks();
+      };
+
+      const label = document.createElement("span");
+      label.textContent = text;
+      label.className = "task-label break-words whitespace-normal w-full";
+      label.ondblclick = () => enableEdit(label, task);
+
+      leftDiv.appendChild(checkbox);
+      leftDiv.appendChild(label);
+
+      task.appendChild(leftDiv);
+      return task;
+    }
+
+    function enableEdit(label, task) {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = label.textContent;
+
+      input.className = "task-edit border px-1 py-0.5 rounded w-full text-sm bg-blue-50";
+      input.style.width = "100%";
+      label.replaceWith(input);
+      input.focus();
+
+      const save = () => {
+        const newLabel = document.createElement("span");
+        newLabel.textContent = input.value;
+        newLabel.className = "task-label break-words whitespace-normal w-full";
+        input.replaceWith(newLabel);
+        const editBtn = task.querySelector("button");
+        if (editBtn) editBtn.onclick = () => enableEdit(newLabel, task);
+        saveTasks();
+      };
+
+      input.addEventListener("blur", save);
+      input.addEventListener("keydown", e => {
+        if (e.key === "Enter") save();
+        else if (e.key === "Escape") input.replaceWith(label);
+      });
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function deleteTask(ev) {
+      ev.preventDefault();
+      const id = ev.dataTransfer.getData("text");
+      const task = document.getElementById(id);
+      if (task) task.remove();
+      saveTasks();
+    }
+
+    loadTasks();
+  </script>
+</body>
+</html>
