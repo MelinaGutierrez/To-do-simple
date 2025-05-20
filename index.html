@@ -11,17 +11,17 @@
     }
   </style>
 </head>
-<body class="bg-blue-50 min-h-screen p-6 font-sans">
+<body class="bg-orange-50 min-h-screen p-6 font-sans bg-cover bg-center" style="background-image: url('fondo.png');">
   <!-- Logo centrado -->
   <div class="flex justify-center mb-2">
     <img src="b82afd4e-e5d0-4169-a52c-0a9a42f8d9ef.png" alt="Logo Keep it simple" class="h-16">
   </div>
 
-  <h1 class="text-4xl font-bold text-center text-blue-900 mb-6">Keep it simple</h1>
+  <h1 class="text-4xl font-bold text-center text-orange-900 mb-6">Keep it simple</h1>
 
   <div class="flex justify-center mb-4">
     <input id="taskInput" type="text" maxlength="30" placeholder="Escribe tu tarea y presiona Enter o ➤..." class="px-4 py-2 border rounded-l-lg w-1/2" onkeydown="handleKey(event)">
-    <button onclick="addTask()" class="px-4 py-2 bg-blue-400 text-white rounded-r-lg">➤</button>
+    <button onclick="addTask()" class="px-4 py-2 bg-orange-500 text-white rounded-r-lg">➤</button>
   </div>
 
   <!-- Área de tarea temporal -->
@@ -30,25 +30,25 @@
   </div>
 
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
-    <div class="bg-white p-3 rounded-lg shadow-sm border border-blue-600 min-h-[200px]" ondrop="drop(event, 'column1')" ondragover="allowDrop(event)">
+    <div class="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-600 min-h-[200px]" ondrop="drop(event, 'column1')" ondragover="allowDrop(event)">
       <h2 class="text-sm font-medium text-center mb-2">Urgente e importante</h2>
       <div class="space-y-2" id="column1"></div>
     </div>
-    <div class="bg-white p-3 rounded-lg shadow-sm border border-blue-400 min-h-[200px]" ondrop="drop(event, 'column2')" ondragover="allowDrop(event)">
+    <div class="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-600 min-h-[200px]" ondrop="drop(event, 'column2')" ondragover="allowDrop(event)">
       <h2 class="text-sm font-medium text-center mb-2">No urgente e importante</h2>
       <div class="space-y-2" id="column2"></div>
     </div>
-    <div class="bg-white p-3 rounded-lg shadow-sm border border-blue-300 min-h-[200px]" ondrop="drop(event, 'column3')" ondragover="allowDrop(event)">
+    <div class="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-600 min-h-[200px]" ondrop="drop(event, 'column3')" ondragover="allowDrop(event)">
       <h2 class="text-sm font-medium text-center mb-2">Urgente y no importante</h2>
       <div class="space-y-2" id="column3"></div>
     </div>
-    <div class="bg-white p-3 rounded-lg shadow-sm border border-blue-200 min-h-[200px]" ondrop="drop(event, 'column4')" ondragover="allowDrop(event)">
+    <div class="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-600 min-h-[200px]" ondrop="drop(event, 'column4')" ondragover="allowDrop(event)">
       <h2 class="text-sm font-medium text-center mb-2">No urgente y no importante</h2>
       <div class="space-y-2" id="column4"></div>
     </div>
   </div>
 
-  <div id="trash" ondrop="deleteTask(event)" ondragover="allowDrop(event)"
+  <div id="trash" class="fixed bottom-4 right-4 w-14 h-14 rounded-full bg-orange-400 flex items-center justify-center shadow-lg cursor-pointer" ondrop="deleteTask(event)" ondragover="allowDrop(event)"
     class="fixed bottom-4 right-4 w-14 h-14 rounded-full bg-blue-300 flex items-center justify-center shadow-lg cursor-pointer">
     🗑️
   </div>
@@ -110,7 +110,7 @@
       const task = document.createElement("div");
       task.draggable = true;
       task.id = id;
-      task.className = "flex items-start justify-between p-2 bg-blue-100 rounded w-full text-sm break-words whitespace-normal";
+      task.className = "flex items-start justify-between p-2 bg-orange-100 rounded w-full text-sm break-words whitespace-normal";
       task.ondragstart = drag;
 
       const leftDiv = document.createElement("div");
